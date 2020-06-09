@@ -148,3 +148,6 @@ debug.env
 
 #ctags
 tags
+
+pretrained/
+shell/
