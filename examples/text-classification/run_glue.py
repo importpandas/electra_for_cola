@@ -25,6 +25,8 @@ from typing import Dict, Optional
 
 import numpy as np
 
+sys.path.insert(0,'/slfs1/users/hsx66/electra_for_cola/src')
+
 from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer, EvalPrediction, GlueDataset
 from transformers import GlueDataTrainingArguments as DataTrainingArguments
 from transformers import (

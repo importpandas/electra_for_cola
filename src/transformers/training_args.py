@@ -96,6 +96,7 @@ class TrainingArguments:
         metadata={"help": "If > 0: set total number of training steps to perform. Override num_train_epochs."},
     )
     warmup_steps: int = field(default=0, metadata={"help": "Linear warmup over warmup_steps."})
+    warmup_rate: float = field(default=0.0, metadata={"help": "Linear warmup rate of all steps."})
 
     logging_dir: Optional[str] = field(default=None, metadata={"help": "Tensorboard log dir."})
     logging_first_step: bool = field(default=False, metadata={"help": "Log and eval the first global_step"})

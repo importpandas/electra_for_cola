@@ -313,8 +313,12 @@ class Trainer:
             },
         ]
         optimizer = AdamW(optimizer_grouped_parameters, lr=self.args.learning_rate, eps=self.args.adam_epsilon)
+        if self.args.warmup_rate != 0:
+            warmup_steps = int(self.args.warmup_rate * num_training_steps)
+        else:
+            warmup_steps = self.args.warmup_steps
         scheduler = get_linear_schedule_with_warmup(
-            optimizer, num_warmup_steps=self.args.warmup_steps, num_training_steps=num_training_steps
+            optimizer, num_warmup_steps=warmup_steps, num_training_steps=num_training_steps
         )
         return optimizer, scheduler
 
