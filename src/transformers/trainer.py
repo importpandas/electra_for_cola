@@ -302,16 +302,22 @@ class Trainer:
             return self.optimizers
         # Prepare optimizer and schedule (linear warmup and decay)
         no_decay = ["bias", "LayerNorm.weight"]
-        optimizer_grouped_parameters = [
-            {
-                "params": [p for n, p in self.model.named_parameters() if not any(nd in n for nd in no_decay)],
-                "weight_decay": self.args.weight_decay,
-            },
-            {
-                "params": [p for n, p in self.model.named_parameters() if any(nd in n for nd in no_decay)],
-                "weight_decay": 0.0,
-            },
-        ]
+
+        optimizer_grouped_parameters = []
+        for n, p in self.model.named_parameters():
+            params_group = {}
+            params_group['params'] = p
+            params_group['weight_decay'] = 0.0 if any(nd in n for nd in no_decay) else self.args.weight_decay
+            if 'electra.embedding' in n:
+                depth = 0
+            elif 'electra.encoder.layer' in n:
+                depth = int(re.search(r"electra.encoder.layer.(\d+)", n).group(1)) + 1
+            else:
+                depth = self.model.config.num_hidden_layers
+            params_group['lr'] = self.args.learning_rate * \
+                                 (self.args.layerwise_lr_decay ** (self.model.config.num_hidden_layers - depth))
+            optimizer_grouped_parameters.append(params_group)
+
         optimizer = AdamW(optimizer_grouped_parameters, lr=self.args.learning_rate, eps=self.args.adam_epsilon)
         if self.args.warmup_rate != 0:
             warmup_steps = int(self.args.warmup_rate * num_training_steps)
