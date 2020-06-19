@@ -360,7 +360,8 @@ class ElectraForSequenceClassification(ElectraPreTrainedModel):
         super().__init__(config)
         self.num_labels = config.num_labels
         self.electra = ElectraModel(config)
-        self.classifier = ElectraClassificationHead(config)
+        self.classifier = nn.Linear(config.hidden_size, config.num_labels)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
         self.init_weights()
 
@@ -420,7 +421,8 @@ class ElectraForSequenceClassification(ElectraPreTrainedModel):
         )
 
         sequence_output = discriminator_hidden_states[0]
-        logits = self.classifier(sequence_output)
+        pooler_output = self.dropout(sequence_output[:, 0, :])
+        logits = self.classifier(pooler_output)
 
         outputs = (logits,) + discriminator_hidden_states[2:]  # add hidden states and attention if they are here
 
